@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+/* CONSOLE */
+.console {
+  position: relative;
+  width: min(900px, 95vw);
+  aspect-ratio: 900 / 600;
+}
+
+/* IMAGE */
+.console-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* PLAYER */
+.player {
+  position: absolute;
+  top: 30%;
+  left: 25%;
+  width: 49.7%;
+  height: 42.8%;
+
+  box-sizing: border-box;
+  overflow: hidden;
+
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(2px);
+
+  padding: 16px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  border-radius: 2px;
+}
+
+/* SCREEN EFFECT */
+.player::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(255,255,255,0.03),
+    rgba(0,0,0,0.15)
+  );
+  pointer-events: none;
+}
+
+/* TEXT */
+.title {
+  font-size: 15px;
+  color: #000;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+/* SEEK */
+.slider {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  background: #d0d0d0;
+  border-radius: 999px;
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #111;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* TIME */
+.time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+button {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  background: #9fc0a3;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  background: #6f9181;
+}
+
+/* VOLUME */
+.volume-wrapper {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.volume-icon {
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.volume-icon:hover {
+  opacity: 1;
+}
+
+.volume-popup {
+  position: absolute;
+  top: 24px;
+  right: -160%;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transform: translateX(20px) scale(0.9);
+
+  transition: 0.2s ease;
+}
+
+.slider-wrap {
+  width: 80px;
+  height: 20px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.volume-popup input {
+  width: 80px;
+  height: 4px;
+
+  appearance: none;
+
+  background: #333;
+  border-radius: 999px;
+
+  transform: rotate(90deg);
+  cursor: pointer;
+}
+
+.volume-popup input::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+}
+
+.volume-wrapper:hover .volume-popup {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0px) scale(1);
+}
+
+/* HIDDEN SOUNDCLOUD */
+iframe {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="console">
+
+  <img
+    src="https://res.cloudinary.com/df3r3efat/image/upload/v1777900282/fk8bv7e3gi2xqng9cpkk.png"
+    class="console-img"
+  >
+
+  <div class="player">
+
+    <!-- VOLUME -->
+    <div class="volume-wrapper">
+      <div class="volume-icon">🔊</div>
+
+      <div class="volume-popup">
+        <div class="slider-wrap">
+          <input
+            type="range"
+            id="volume"
+            min="0"
+            max="100"
+            value="50"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- SONG INFO -->
+    <div class="title">Cafe Leblanc</div>
+    <div class="subtitle">Jazz • Rain</div>
+
+    <!-- SEEK -->
+    <input
+      type="range"
+      id="seek"
+      class="slider"
+      value="0"
+    >
+
+    <!-- TIME -->
+    <div class="time">
+      <span id="current">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+      <button onclick="prevTrack()">⏮</button>
+      <button onclick="play()">▶</button>
+      <button onclick="pause()">⏸</button>
+      <button onclick="nextTrack()">⏭</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- SOUNDCLOUD -->
+<iframe
+  id="sc"
+  allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/grant-lewers-185714392/cafe-leblanc-coffee-shop-ambience-smooth-jazz-persona-music-rain-to-study-relax-sleep&auto_play=false&visual=false">
+</iframe>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+
+<script>
+const iframe = document.getElementById("sc");
+const widget = SC.Widget(iframe);
+
+const seek = document.getElementById("seek");
+const volume = document.getElementById("volume");
+
+const current = document.getElementById("current");
+const duration = document.getElementById("duration");
+
+const title = document.querySelector(".title");
+const subtitle = document.querySelector(".subtitle");
+
+/* PLAYLIST */
+const playlist = [
+
+{
+  url: "https://soundcloud.com/grant-lewers-185714392/cafe-leblanc-coffee-shop-ambience-smooth-jazz-persona-music-rain-to-study-relax-sleep",
+  title: "Cafe Leblanc",
+  subtitle: "Jazz • Rain"
+},
+
+{
+  url: "https://on.soundcloud.com/WTHjZk4zZcP6VtBsQA",
+  title: "Music for studying - Animal crossing",
+  subtitle: "Videogames • Chill"
+},
+
+{
+  url: "https://youtu.be/sbJMcQlzjfE?si=8XoTlPe0C3Vd3kdv",
+  title: "Genshin Impact OST - Nod Krai",
+  subtitle: "Study • Relax"
+}
+
+];
+
+let currentTrack = 0;
+let isSeeking = false;
+
+/* FORMAT TIME */
+function format(ms) {
+
+  let seconds = Math.floor(ms / 1000);
+
+  let minutes = Math.floor(seconds / 60);
+
+  seconds = seconds % 60;
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+/* LOAD TRACK */
+function loadTrack(index, autoplay = true) {
+
+  currentTrack = index;
+
+  title.textContent = playlist[index].title;
+  subtitle.textContent = playlist[index].subtitle;
+
+  widget.load(playlist[index].url, {
+
+    auto_play: autoplay,
+    visual: false,
+    show_artwork: false,
+    show_comments: false,
+    show_playcount: false,
+    show_user: false
+
+  });
+
+  setTimeout(() => {
+
+    widget.getDuration(d => {
+      duration.textContent = format(d);
+    });
+
+  }, 1000);
+}
+
+/* CONTROLS */
+function play() {
+  widget.play();
+}
+
+function pause() {
+  widget.pause();
+}
+
+function nextTrack() {
+
+  currentTrack++;
+
+  if (currentTrack >= playlist.length) {
+    currentTrack = 0;
+  }
+
+  loadTrack(currentTrack, true);
+}
+
+function prevTrack() {
+
+  currentTrack--;
+
+  if (currentTrack < 0) {
+    currentTrack = playlist.length - 1;
+  }
+
+  loadTrack(currentTrack, true);
+}
+
+/* READY */
+widget.bind(SC.Widget.Events.READY, () => {
+
+  widget.setVolume(50);
+
+  widget.getDuration(d => {
+    duration.textContent = format(d);
+  });
+
+});
+
+/* AUTO NEXT */
+widget.bind(SC.Widget.Events.FINISH, () => {
+  nextTrack();
+});
+
+/* VOLUME */
+volume.addEventListener("input", () => {
+
+  const inverted = 100 - Number(volume.value);
+
+  widget.setVolume(inverted);
+
+});
+
+/* SEEK UPDATE */
+setInterval(() => {
+
+  if (isSeeking) return;
+
+  widget.getPosition(pos => {
+
+    widget.getDuration(dur => {
+
+      if (!dur) return;
+
+      seek.value = (pos / dur) * 100;
+
+      current.textContent = format(pos);
+
+    });
+
+  });
+
+}, 500);
+
+/* SEEKING */
+seek.addEventListener("input", () => {
+  isSeeking = true;
+});
+
+seek.addEventListener("change", () => {
+
+  widget.getDuration(dur => {
+
+    widget.seekTo((seek.value / 100) * dur);
+
+    isSeeking = false;
+
+  });
+
+});
+
+/* START */
+loadTrack(0, false);
+</script>
+
+</body>
+</html>
